@@ -31,8 +31,11 @@ function sys.textinput(text)
 end
 
 function sys.connectToServer(ip,nick)
-	core.loadState("connecting")
-	--net.connect(ip,port,nick)
+	local colon = ip:find(":")
+	if type(colon) == "number" then
+		core.loadState("connecting")
+		net.connect(ip:sub(1, colon-1),ip:sub(colon+1, ip:len()),nick)
+	end
 end
 
 return sys
