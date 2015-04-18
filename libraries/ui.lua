@@ -7,18 +7,23 @@ function lib.mouseOver(x,y,w,h)
 	return mx>=x and mx<=x+w and my>=y and my<=y+h
 end
 
-function lib.button(x,y,w,h,text,btn)
+local buttonDraw = function(self)
+	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
+
+	local fw, fh = lib.font:getWidth(self.text), lib.font:getHeight()
+	love.graphics.setColor(80, 80, 80, 255)
+	love.graphics.print(self.text, self.x+self.w/2-fw/2, self.y+self.h/2-fh/2)
+
+	return lib.mouseOver(self.x, self.y, self.w, self.h) and love.mouse.isDown(self.btn)
+end
+
+function lib.newButton(x,y,w,h,text,btn)
 	if not text then text = "" end
 	if not btn then btn = "l" end
-
-	love.graphics.setColor(255, 255, 255, 255)
-	love.graphics.rectangle("fill", x, y, w, h)
-
-	local fw, fh = lib.font:getWidth(text), lib.font:getHeight()
-	love.graphics.setColor(80, 80, 80, 255)
-	love.graphics.print(text, x+w/2-fw/2, y+h/2-fh/2)
-
-	return lib.mouseOver(x, y, w, h) and love.mouse.isDown(btn)
+	local button = {x=x,y=y,w=w,h=h,text=text,btn=btn}
+	button.draw = buttonDraw
+	return button
 end
 
 local textInputKeypressed = function(self,key)
@@ -32,9 +37,7 @@ local textInputKeypressed = function(self,key)
 end
 
 local textInputTextinput = function(self,text)
-	if self.active then
-		self.text = self.text .. text
-	end
+	if self.active then self.text = self.text .. text end
 end
 
 local textInputDraw = function(self)
@@ -46,9 +49,7 @@ local textInputDraw = function(self)
 	if self.text == "" then
 		text = self.name
 		colour = {130, 130, 130, 255}
-		if self.active then
-			colour = {180, 180, 180, 255}
-		end
+		if self.active then colour = {180, 180, 180, 255} end
 	end
 
 	local fw, fh = lib.font:getWidth(text), lib.font:getHeight()
@@ -58,9 +59,7 @@ local textInputDraw = function(self)
 		love.graphics.print(text, self.x+self.w/2-fw/2, self.y+self.h/2-fh/2)
 	love.graphics.setScissor()
 
-	if love.mouse.isDown(self.btn) then
-		if lib.mouseOver(self.x, self.y, self.w, self.h) then self.active = true else self.active = false end
-	end
+	if love.mouse.isDown(self.btn) then if lib.mouseOver(self.x, self.y, self.w, self.h) then self.active = true else self.active = false end end
 end
 
 function lib.newTextInput(x,y,w,h,name,btn)
