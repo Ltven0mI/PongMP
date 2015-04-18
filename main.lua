@@ -5,6 +5,7 @@ asset = require("assets")
 asset.loadImages("assets/images")
 
 advMath = require("libraries.advMath")
+ui = require("libraries.ui")
 
 core.registerSystem("menuMain", require("systems.menuMain"))
 core.registerSystem("net", require("systems.network"))
