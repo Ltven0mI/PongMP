@@ -26,7 +26,8 @@ function sys.textinput(text)
 end
 
 function sys.connectToServer(ip)
-	print("Connect To: "..ip)
+	core.loadState("connecting")
+	--net.connect(ip,port,nick)
 end
 
 return sys
