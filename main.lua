@@ -11,4 +11,6 @@ core.registerSystem("menuMain", require("systems.menuMain"))
 core.registerSystem("net", require("systems.network"))
 core.registerSystem("game", require("systems.game"))
 
+math.randomseed(os.time())
+
 core.loadState("menu")
