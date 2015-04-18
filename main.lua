@@ -9,5 +9,6 @@ ui = require("libraries.ui")
 
 core.registerSystem("menuMain", require("systems.menuMain"))
 core.registerSystem("net", require("systems.network"))
+core.registerSystem("game", require("systems.game"))
 
 core.loadState("menu")

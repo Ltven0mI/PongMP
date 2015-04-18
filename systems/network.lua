@@ -61,11 +61,16 @@ local function structUpdatePacket(varName,value)
 	return packet
 end
 
+local function structConnectPacket()
+	return {job = "connect", nick = net.nick}
+end
+
 -- functions --
 function net.connect(address,port,nickname)
 	net.udp:settimeout(0)
 	net.udp:setpeername(address,port)
 	net.nick = tostring(nickname)
+	net.udp:send(serialize(structConnectPacket()))
 end
 
 function net.set(netVar,value)
@@ -75,12 +80,17 @@ end
 -- callbacks --
 function net.update(dt)
 	net.rateTimer = net.rateTimer + dt
+
 	-- receive
 	local packet, msg = net.udp:receive()
 	if packet then
 		local data = deserialize(packet)
-	
+		if data.job == "connect" and data.status == "done" then
+			net.status = "connected"
+			core.loadState("playing")
+		end
 	end
+
 	-- send
 	if net.status == "connected" then
 		if net.rateTimer >= 1/net.rate then
