@@ -10,11 +10,9 @@ end
 local buttonDraw = function(self)
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
-
 	local fw, fh = lib.font:getWidth(self.text), lib.font:getHeight()
 	love.graphics.setColor(80, 80, 80, 255)
 	love.graphics.print(self.text, self.x+self.w/2-fw/2, self.y+self.h/2-fh/2)
-
 	return lib.mouseOver(self.x, self.y, self.w, self.h) and love.mouse.isDown(self.btn)
 end
 
@@ -43,7 +41,7 @@ end
 local textInputDraw = function(self)
 	love.graphics.setColor(255, 255, 255, 255)
 	love.graphics.rectangle("fill", self.x, self.y, self.w, self.h)
-
+	
 	local text = self.text
 	local colour = {80, 80, 80, 255}
 	if self.text == "" then
@@ -51,7 +49,6 @@ local textInputDraw = function(self)
 		colour = {130, 130, 130, 255}
 		if self.active then colour = {180, 180, 180, 255} end
 	end
-
 	local fw, fh = lib.font:getWidth(text), lib.font:getHeight()
 
 	love.graphics.setScissor(self.x, self.y, self.w, self.h)
