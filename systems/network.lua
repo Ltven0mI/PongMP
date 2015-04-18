@@ -39,7 +39,11 @@ local function sequence(current,last,max)
 end
 
 local function stepSequence()
-	net.sequence_local = net.sequence_local + 1
+	if net.sequence_local > 100 then
+		net.sequence_local = 1
+	else
+		net.sequence_local = net.sequence_local + 1
+	end
 end
 
 local function getSequence()
