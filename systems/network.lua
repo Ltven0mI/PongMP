@@ -23,7 +23,7 @@ local function serialize(t)
 				if type(val) == "string" then varStr = "'"..val.."'" end
 				str = str..key..varStr
 			else
-				str = str..key..bnet.table.toString(val)
+				str = str..key..serialize(t)
 			end
 		end
 	return str.."}"
@@ -54,6 +54,7 @@ local function structUpdatePacket(varName,value)
 	local packet = {
 		sequence = getSequence(),
 		job = "update",
+		nick = net.nick,
 		name = varName,
 		value = value,
 	}
