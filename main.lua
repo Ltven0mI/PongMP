@@ -13,4 +13,4 @@ core.registerSystem("game", require("systems.game"))
 
 math.randomseed(os.time())
 
-core.loadState("menu")
+core.loadState("playing")
