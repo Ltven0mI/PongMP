@@ -4,17 +4,20 @@ game.players = {}
 
 game.myID = 1
 
-game.paddlePadding = 20
+game.paddlePadding = 10
 game.paddleDepth = 10
 game.paddleLength = 100
 
 game.paddleSpeed = 500
 
 game.ball = nil
-game.ballSize = 30
-game.ballSpeed = 100
+game.ballSize = 10
+game.ballSpeed = 300
+
+game.blipEffect = nil
 
 function game.onStateLoad()
+	game.blipEffect = love.audio.newSource("/assets/audio/pongBlip.wav", "static")
 	game.addPlayer()
 	game.startGame()
 end
@@ -76,10 +79,14 @@ function game.update(dt)
 		if player then
 			if bx-game.ballSize/2 < game.paddlePadding+game.paddleDepth and by-game.ballSize/2 < player.pos+game.paddleLength/2 and by+game.ballSize/2 > player.pos-game.paddleLength/2 then
 				game.ball.vel.x = positive(game.ball.vel.x)
+				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
+				game.ball.vel.y = ratio
+				game.playSound()
 			end
 		else
 			if bx-game.ballSize/2 < 0 then
 				game.ball.vel.x = positive(game.ball.vel.x)
+				game.playSound()
 			end
 		end
 
@@ -87,10 +94,14 @@ function game.update(dt)
 		if player then
 			if bx+game.ballSize/2 > width-game.paddlePadding-game.paddleDepth and by-game.ballSize/2 < player.pos+game.paddleLength/2 and by+game.ballSize/2 > player.pos-game.paddleLength/2 then
 				game.ball.vel.x = negative(game.ball.vel.x)
+				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
+				game.ball.vel.y = ratio
+				game.playSound()
 			end
 		else
 			if bx+game.ballSize/2 > width then
 				game.ball.vel.x = negative(game.ball.vel.x)
+				game.playSound()
 			end
 		end
 
@@ -99,10 +110,14 @@ function game.update(dt)
 		if player then
 			if by-game.ballSize/2 < game.paddlePadding+game.paddleDepth and bx-game.ballSize/2 < player.pos+game.paddleLength/2 and bx+game.ballSize/2 > player.pos-game.paddleLength/2 then
 				game.ball.vel.y = positive(game.ball.vel.y)
+				local ratio = (game.ball.pos.x-player.pos)/(game.paddleLength/4)
+				game.ball.vel.x = ratio
+				game.playSound()
 			end
 		else
 			if by-game.ballSize/2 < 0 then
 				game.ball.vel.y = positive(game.ball.vel.y)
+				game.playSound()
 			end
 		end
 
@@ -110,10 +125,14 @@ function game.update(dt)
 		if player then
 			if by+game.ballSize/2 > height-game.paddlePadding-game.paddleDepth and bx-game.ballSize/2 < player.pos+game.paddleLength/2 and bx+game.ballSize/2 > player.pos-game.paddleLength/2 then
 				game.ball.vel.y = negative(game.ball.vel.y)
+				local ratio = (game.ball.pos.x-player.pos)/(game.paddleLength/4)
+				game.ball.vel.x = ratio
+				game.playSound()
 			end
 		else
 			if by+game.ballSize/2 > height then
 				game.ball.vel.y = negative(game.ball.vel.y)
+				game.playSound()
 			end
 		end
 	end
@@ -154,6 +173,10 @@ function game.keypressed(key)
 	end
 end
 
+function game.playSound()
+	game.blipEffect:play()
+end
+
 function game.addPlayer()
 	if #game.players < 4 then
 		local width, height = love.graphics.getDimensions()
@@ -173,7 +196,8 @@ function game.startGame()
 end
 
 function game.endGame()
-	love.event.quit()
+	-- love.event.quit()
+	game.startGame()
 end
 
 return game
