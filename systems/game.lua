@@ -188,6 +188,8 @@ end
 function game.startGame()
 	local width, height = love.graphics.getDimensions()
 	game.ball = {pos=vec2.new(width/2, height/2),vel=vec2.new((math.random(0, 1)-0.5)*2, (math.random(0, 1)-0.5)*2)}
+	if game.players[1] then game.players[1].pos = width/2 end
+	if game.players[2] then game.players[2].pos = width/2 end
 end
 
 function game.endGame(playerID)
