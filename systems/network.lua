@@ -8,6 +8,8 @@ net.id = 0
 
 net.playerOnePos = 0
 net.playerTwoPos = 0
+net.playerOneScore = 0
+net.playerTwoScore = 0
 net.networkVariables = {}
 net.lastNetworkVariables = {}
 net.rateTimer = 0
@@ -117,6 +119,10 @@ function net.update(dt)
 				net.playerOnePos = data.value
 			elseif data.name == "player_2_pos" then
 				net.playerTwoPos = data.value
+			elseif data.name == "player_1_score" then
+				net.playerOneScore = data.value
+			elseif data.name == "player_2_score" then
+				net.playerTwoScore = data.value
 			end
 		elseif data.job == "sound" then
 			if data.sound == "beep" then
@@ -126,6 +132,9 @@ function net.update(dt)
 			if net.nick ~= data.newPlayerNick and data.playing < 3 then
 				game.addPlayer()
 			end
+		elseif data.job == "newGame" then
+			print("Game reset!")
+			game.startGame()
 		end
 	end
 

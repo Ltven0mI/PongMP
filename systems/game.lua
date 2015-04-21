@@ -60,20 +60,22 @@ function game.draw()
 	local width, height = love.graphics.getDimensions()
 	local player = game.players[1]
 	if player then
-		love.graphics.print(player.score, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2), math.floor(game.scorePadding), 0, game.scoreScale)
-		love.graphics.rectangle("fill", game.paddlePadding, game.getAvg(net.playerOnePos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		-- if game.myID == 1 then
-		-- 	love.graphics.rectangle("line", game.paddlePadding, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		-- end
+		love.graphics.print(net.playerOneScore, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2), math.floor(game.scorePadding), 0, game.scoreScale)
+		if game.myID == 1 then
+			love.graphics.rectangle("fill", game.paddlePadding, game.getAvg(net.playerOnePos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		else
+			love.graphics.rectangle("fill", game.paddlePadding, net.playerOnePos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		end
 	end
 
 	player = game.players[2]
 	if player then
-		love.graphics.print(player.score, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
-		love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, game.getAvg(net.playerTwoPos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		-- if game.myID == 2 then
-		-- 	love.graphics.rectangle("line", width-game.paddlePadding-game.paddleDepth, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		-- end
+		love.graphics.print(net.playerTwoScore, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
+		if game.myID == 2 then
+			love.graphics.rectangle("fill", game.paddlePadding, game.getAvg(net.playerTwoPos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		else
+			love.graphics.rectangle("fill", game.paddlePadding, net.playerTwoPos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		end
 	end
 
 	if game.ball then
@@ -118,6 +120,8 @@ end
 function game.startGame()
 	local width, height = love.graphics.getDimensions()
 	game.ball = {pos=vec2.new(width/2, height/2),vel=vec2.new((math.random(0, 1)-0.5)*2, (math.random(0, 1)-0.5)*2)}
+	net.playerOnePos = width/2
+	net.playerTwoPos = width/2
 	if game.players[1] then game.players[1].pos = width/2 end
 	if game.players[2] then game.players[2].pos = width/2 end
 end
