@@ -2,12 +2,16 @@
 local net = {}
 net.udp = require("socket").udp()
 
-net.rate = 33
+net.rate = 24
 net.nick = "Player"
 net.id = 0
 
+net.playerOnePos = 0
+net.playerTwoPos = 0
 net.networkVariables = {}
+net.lastNetworkVariables = {}
 net.rateTimer = 0
+net.keepAliveTimer = 0
 net.status = "idle"
 net.sequence_local = 1
 net.sequence_host = 1
@@ -66,6 +70,10 @@ local function structConnectPacket()
 	return {job = "connect", nick = net.nick}
 end
 
+local function structKeepAlive()
+	return {job = "keepAlive", nick = net.nick}
+end
+
 -- functions --
 function net.connect(address,port,nickname)
 	net.udp:settimeout(0)
@@ -81,6 +89,13 @@ end
 -- callbacks --
 function net.update(dt)
 	net.rateTimer = net.rateTimer + dt
+	net.keepAliveTimer = net.keepAliveTimer + dt
+
+	--keepAlive
+	if net.keepAliveTimer >= 10 then
+		net.keepAliveTimer = 0
+		net.udp:send(serialize(structKeepAlive()))
+	end
 
 	-- receive
 	local packet, msg = net.udp:receive()
@@ -89,6 +104,28 @@ function net.update(dt)
 		if data.job == "connect" and data.status == "done" then
 			net.status = "connected"
 			core.loadState("playing")
+			game.myID = data.pid
+			print("People playing: "..data.playing)
+			if data.playing >= 1 then game.addPlayer() end
+			if data.playing >= 2 then game.addPlayer() end
+		elseif data.job == "update" then
+			if data.name == "ball" then
+				if game.ball then
+					game.ball.pos:setXY(data.value[1],data.value[2])
+				end
+			elseif data.name == "player_1_pos" then
+				net.playerOnePos = data.value
+			elseif data.name == "player_2_pos" then
+				net.playerTwoPos = data.value
+			end
+		elseif data.job == "sound" then
+			if data.sound == "beep" then
+				game.playSound()
+			end
+		elseif data.job == "joined" then
+			if net.nick ~= data.newPlayerNick and data.playing < 3 then
+				game.addPlayer()
+			end
 		end
 	end
 
@@ -98,7 +135,10 @@ function net.update(dt)
 			net.rateTimer = 0
 			for netVar,value in pairs(net.networkVariables) do
 				if value then
-					net.udp:send(serialize(structUpdatePacket(netVar,value)))
+					if value ~= net.lastNetworkVariables[netVar] then
+						net.lastNetworkVariables[netVar] = value
+						net.udp:send(serialize(structUpdatePacket(netVar,value)))
+					end
 				end
 			end
 		end

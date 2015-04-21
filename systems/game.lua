@@ -26,7 +26,7 @@ function game.onStateLoad()
 	love.graphics.setFont(game.scoreFont)
 	game.blipEffects[1] = love.audio.newSource("/assets/audio/pongBlip2.wav", "static")
 	game.blipEffects[2] = love.audio.newSource("/assets/audio/pongBlip2.wav", "static")
-	game.addPlayer()
+	-- game.addPlayer()
 	game.startGame()
 end
 
@@ -40,7 +40,7 @@ end
 
 function game.update(dt)
 	local width, height = love.graphics.getDimensions()
-	if game.myID > 0 and game.myID < 5 then
+	if game.myID > 0 and game.myID < 3 then
 		-- local player = game.players[game.myID]
 		-- local moveAmount = 0
 		-- if game.myID == 1 or game.myID == 2 then
@@ -57,87 +57,93 @@ function game.update(dt)
 		-- 	if player.pos+game.paddleLength/2 > width then player.pos = width-game.paddleLength/2 end
 		-- end
 
-		for i=1, 2 do
-			local player = game.players[i]
+		local player = game.players[game.myID]
 
-			local moveAmount = 0
-			moveAmount = love.keyboard.isDown("up") and -1 or 0
-			moveAmount = love.keyboard.isDown("down") and 1 or moveAmount
+		local moveAmount = 0
+		moveAmount = love.keyboard.isDown("up") and -1 or 0
+		moveAmount = love.keyboard.isDown("down") and 1 or moveAmount
 
-			if player then
-				player.pos = player.pos + moveAmount*game.paddleSpeed*dt
-				if player.pos-game.paddleLength/2 < 0 then player.pos = game.paddleLength/2 end
-				if player.pos+game.paddleLength/2 > width then player.pos = width-game.paddleLength/2 end
-			end
+		if player then
+			player.pos = player.pos + moveAmount*game.paddleSpeed*dt
+			if player.pos-game.paddleLength/2 < 0 then player.pos = game.paddleLength/2 end
+			if player.pos+game.paddleLength/2 > width then player.pos = width-game.paddleLength/2 end
+			net.set("player_pos",math.floor(player.pos))
 		end
 	end
 
-	if game.ball then
-		game.ball.pos = game.ball.pos:add(game.ball.vel:mul(game.ballSpeed):mul(dt))
+	-- if game.ball then
+	-- 	game.ball.pos = game.ball.pos:add(game.ball.vel:mul(game.ballSpeed):mul(dt))
 
-		local bx, by = game.ball.pos:xy()
-		if bx+game.ballSize/2 < 0 or bx-game.ballSize/2 > width or by+game.ballSize/2 < 0 or by-game.ballSize/2 > height then game.endGame() end
+	-- 	local bx, by = game.ball.pos:xy()
+	-- 	if bx+game.ballSize/2 < 0 or bx-game.ballSize/2 > width or by+game.ballSize/2 < 0 or by-game.ballSize/2 > height then game.endGame() end
 
-		local player = game.players[1]
-		if player then
-			if bx-game.ballSize/2 < game.paddlePadding+game.paddleDepth and by-game.ballSize/2 < player.pos+game.paddleLength/2 and by+game.ballSize/2 > player.pos-game.paddleLength/2 then
-				game.ball.vel.x = positive(game.ball.vel.x)
-				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
-				game.ball.vel.y = ratio
-				game.ball.pos.x = game.paddlePadding+game.paddleDepth+game.ballSize/2
-				game.playSound()
-			end
-			if bx+game.ballSize/2 < 0 then game.endGame(1) end
-		else
-			if bx-game.ballSize/2 < 0 then
-				game.ball.vel.x = positive(game.ball.vel.x)
-				game.ball.pos.x = game.ballSize/2
-				game.playSound()
-			end
-		end
+	-- 	local player = game.players[1]
+	-- 	if player then
+	-- 		if bx-game.ballSize/2 < game.paddlePadding+game.paddleDepth and by-game.ballSize/2 < player.pos+game.paddleLength/2 and by+game.ballSize/2 > player.pos-game.paddleLength/2 then
+	-- 			game.ball.vel.x = positive(game.ball.vel.x)
+	-- 			local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
+	-- 			game.ball.vel.y = ratio
+	-- 			game.ball.pos.x = game.paddlePadding+game.paddleDepth+game.ballSize/2
+	-- 			game.playSound()
+	-- 		end
+	-- 		if bx+game.ballSize/2 < 0 then game.endGame(1) end
+	-- 	else
+	-- 		if bx-game.ballSize/2 < 0 then
+	-- 			game.ball.vel.x = positive(game.ball.vel.x)
+	-- 			game.ball.pos.x = game.ballSize/2
+	-- 			game.playSound()
+	-- 		end
+	-- 	end
 
-		player = game.players[2]
-		if player then
-			if bx+game.ballSize/2 > width-game.paddlePadding-game.paddleDepth and by-game.ballSize/2 < player.pos+game.paddleLength/2 and by+game.ballSize/2 > player.pos-game.paddleLength/2 then
-				game.ball.vel.x = negative(game.ball.vel.x)
-				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
-				game.ball.vel.y = ratio
-				game.ball.pos.x = width-game.paddlePadding-game.paddleDepth-game.ballSize/2
-				game.playSound()
-			end
-			if bx-game.ballSize/2 > width then game.endGame(2) end
-		else
-			if bx+game.ballSize/2 > width then
-				game.ball.vel.x = negative(game.ball.vel.x)
-				game.ball.pos.x = width-game.ballSize/2
-				game.playSound()
-			end
-		end
+	-- 	player = game.players[2]
+	-- 	if player then
+	-- 		if bx+game.ballSize/2 > width-game.paddlePadding-game.paddleDepth and by-game.ballSize/2 < player.pos+game.paddleLength/2 and by+game.ballSize/2 > player.pos-game.paddleLength/2 then
+	-- 			game.ball.vel.x = negative(game.ball.vel.x)
+	-- 			local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
+	-- 			game.ball.vel.y = ratio
+	-- 			game.ball.pos.x = width-game.paddlePadding-game.paddleDepth-game.ballSize/2
+	-- 			game.playSound()
+	-- 		end
+	-- 		if bx-game.ballSize/2 > width then game.endGame(2) end
+	-- 	else
+	-- 		if bx+game.ballSize/2 > width then
+	-- 			game.ball.vel.x = negative(game.ball.vel.x)
+	-- 			game.ball.pos.x = width-game.ballSize/2
+	-- 			game.playSound()
+	-- 		end
+	-- 	end
 
-		if by-game.ballSize/2 < 0 then
-			game.ball.vel.y = positive(game.ball.vel.y)
-			game.playSound()
-		end
+	-- 	if by-game.ballSize/2 < 0 then
+	-- 		game.ball.vel.y = positive(game.ball.vel.y)
+	-- 		game.playSound()
+	-- 	end
 
-		if by+game.ballSize/2 > height then
-			game.ball.vel.y = negative(game.ball.vel.y)
-			game.playSound()
-		end
-	end
+	-- 	if by+game.ballSize/2 > height then
+	-- 		game.ball.vel.y = negative(game.ball.vel.y)
+	-- 		game.playSound()
+	-- 	end
+	-- end
 end
 
 function game.draw()
+	love.graphics.setColor(255, 255, 255, 255)
 	local width, height = love.graphics.getDimensions()
 	local player = game.players[1]
 	if player then
 		love.graphics.print(player.score, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2), math.floor(game.scorePadding), 0, game.scoreScale)
-		love.graphics.rectangle("fill", game.paddlePadding, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		love.graphics.rectangle("fill", game.paddlePadding, net.playerOnePos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		if game.myID == 1 then
+			love.graphics.rectangle("line", game.paddlePadding, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		end
 	end
 
 	player = game.players[2]
 	if player then
 		love.graphics.print(player.score, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
-		love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, net.playerTwoPos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		if game.myID == 2 then
+			love.graphics.rectangle("line", width-game.paddlePadding-game.paddleDepth, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		end
 	end
 
 	if game.ball then
