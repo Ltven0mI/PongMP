@@ -8,9 +8,11 @@ game.paddlePadding = 10
 game.paddleDepth = 10
 game.paddleLength = 100
 
-game.paddleSpeed = 500
+game.paddleSpeed = 700
 
 game.scorePadding = 50
+game.scoreFont = nil
+game.scoreScale = 3
 
 game.ball = nil
 game.ballSize = 10
@@ -19,6 +21,7 @@ game.ballSpeed = 300
 game.blipEffect = nil
 
 function game.onStateLoad()
+	game.scoreFont = love.graphics.getFont()
 	game.blipEffect = love.audio.newSource("/assets/audio/pongBlip2.wav", "static")
 	game.addPlayer()
 	game.startGame()
@@ -78,12 +81,14 @@ function game.update(dt)
 				game.ball.vel.x = positive(game.ball.vel.x)
 				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
 				game.ball.vel.y = ratio
+				game.ball.pos.x = game.paddlePadding+game.paddleDepth+game.ballSize/2
 				game.playSound()
 			end
-			if bx+game.ballSize/2 < 0 then game.endGame() end
+			if bx+game.ballSize/2 < 0 then game.endGame(1) end
 		else
 			if bx-game.ballSize/2 < 0 then
 				game.ball.vel.x = positive(game.ball.vel.x)
+				game.ball.pos.x = game.ballSize/2
 				game.playSound()
 			end
 		end
@@ -94,12 +99,14 @@ function game.update(dt)
 				game.ball.vel.x = negative(game.ball.vel.x)
 				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
 				game.ball.vel.y = ratio
+				game.ball.pos.x = width-game.paddlePadding-game.paddleDepth-game.ballSize/2
 				game.playSound()
 			end
-			if bx-game.ballSize/2 > width then game.endGame() end
+			if bx-game.ballSize/2 > width then game.endGame(2) end
 		else
 			if bx+game.ballSize/2 > width then
 				game.ball.vel.x = negative(game.ball.vel.x)
+				game.ball.pos.x = width-game.ballSize/2
 				game.playSound()
 			end
 		end
@@ -120,13 +127,13 @@ function game.draw()
 	local width, height = love.graphics.getDimensions()
 	local player = game.players[1]
 	if player then
-		love.graphics.print(player.score, width/2-game.scorePadding, game.scorePadding)
+		love.graphics.print(player.score, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
 		love.graphics.rectangle("fill", game.paddlePadding, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
 	end
 
 	player = game.players[2]
 	if player then
-		love.graphics.print(player.score, width/2+game.scorePadding, game.scorePadding)
+		love.graphics.print(player.score, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
 		love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
 	end
 
@@ -173,7 +180,14 @@ function game.startGame()
 	game.ball = {pos=vec2.new(width/2, height/2),vel=vec2.new((math.random(0, 1)-0.5)*2, (math.random(0, 1)-0.5)*2)}
 end
 
-function game.endGame()
+function game.endGame(playerID)
+	if playerID == 1 then
+		local player = game.players[2]
+		if player then player.score = player.score + 1 end
+	elseif playerID == 2 then
+		local player = game.players[1]
+		if player then player.score = player.score + 1 end
+	end
 	-- love.event.quit()
 	game.startGame()
 end
