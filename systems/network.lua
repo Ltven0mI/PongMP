@@ -2,7 +2,7 @@
 local net = {}
 net.udp = require("socket").udp()
 
-net.rate = 24
+net.rate = 33
 net.nick = "Player"
 net.id = 0
 
