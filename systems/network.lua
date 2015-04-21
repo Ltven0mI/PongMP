@@ -23,7 +23,7 @@ local function serialize(t)
 				if type(val) == "string" then varStr = "'"..val.."'" end
 				str = str..key..varStr
 			else
-				str = str..key..serialize(t)
+				str = str..key..serialize(val)
 			end
 		end
 	return str.."}"
