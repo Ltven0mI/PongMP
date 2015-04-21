@@ -72,9 +72,9 @@ function game.draw()
 	if player then
 		love.graphics.print(net.playerTwoScore, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
 		if game.myID == 2 then
-			love.graphics.rectangle("fill", game.paddlePadding, game.getAvg(net.playerTwoPos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+			love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, game.getAvg(net.playerTwoPos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
 		else
-			love.graphics.rectangle("fill", game.paddlePadding, net.playerTwoPos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+			love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, net.playerTwoPos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
 		end
 	end
 
