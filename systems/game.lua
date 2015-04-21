@@ -12,17 +12,20 @@ game.paddleSpeed = 700
 
 game.scorePadding = 50
 game.scoreFont = nil
-game.scoreScale = 3
+game.scoreScale = 5
 
 game.ball = nil
 game.ballSize = 10
 game.ballSpeed = 300
 
-game.blipEffect = nil
+game.blipEffects = {}
+game.lineWidth = 5
 
 function game.onStateLoad()
-	game.scoreFont = love.graphics.getFont()
-	game.blipEffect = love.audio.newSource("/assets/audio/pongBlip2.wav", "static")
+	game.scoreFont = love.graphics.newImageFont("/assets/images/fontGlyphs.png", "1234567890")
+	love.graphics.setFont(game.scoreFont)
+	game.blipEffects[1] = love.audio.newSource("/assets/audio/pongBlip2.wav", "static")
+	game.blipEffects[2] = love.audio.newSource("/assets/audio/pongBlip2.wav", "static")
 	game.addPlayer()
 	game.startGame()
 end
@@ -127,7 +130,7 @@ function game.draw()
 	local width, height = love.graphics.getDimensions()
 	local player = game.players[1]
 	if player then
-		love.graphics.print(player.score, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
+		love.graphics.print(player.score, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2), math.floor(game.scorePadding), 0, game.scoreScale)
 		love.graphics.rectangle("fill", game.paddlePadding, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
 	end
 
@@ -142,12 +145,13 @@ function game.draw()
 	end
 
 	love.graphics.setLineStyle("rough")
+	local lineWidth = love.graphics.getLineWidth()
 	local indices = 50
+	love.graphics.setLineWidth(game.lineWidth)
 	for i=0, (indices/2)-1 do
 		love.graphics.line(width/2, i*((height/2)/indices*2)*2, width/2, (i+0.75)*((height/2)/indices*2)*2)
 	end
-
-
+	love.graphics.setLineWidth(lineWidth)
 end
 
 function game.keypressed(key)
@@ -159,7 +163,13 @@ function game.keypressed(key)
 end
 
 function game.playSound()
-	game.blipEffect:play()
+	if game.blipEffects[1]:isPlaying() then
+		game.blipEffects[2]:play()
+	else
+		if not game.blipEffects[2]:isPlaying() then
+			game.blipEffects[1]:play()
+		end
+	end
 end
 
 function game.addPlayer()

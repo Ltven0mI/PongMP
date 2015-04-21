@@ -4,6 +4,8 @@ asset.image = {}
 
 asset.imageTypes = {"png","jpg"}
 
+love.graphics.setDefaultFilter("nearest", "nearest")
+
 function asset.loadImages(path)
 	if love.filesystem.isDirectory(path) then
 		local files = love.filesystem.getDirectoryItems(path)
