@@ -61,19 +61,19 @@ function game.draw()
 	local player = game.players[1]
 	if player then
 		love.graphics.print(player.score, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2), math.floor(game.scorePadding), 0, game.scoreScale)
-		love.graphics.rectangle("fill", game.paddlePadding, net.playerOnePos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		if game.myID == 1 then
-			love.graphics.rectangle("line", game.paddlePadding, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		end
+		love.graphics.rectangle("fill", game.paddlePadding, game.getAvg(net.playerOnePos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		-- if game.myID == 1 then
+		-- 	love.graphics.rectangle("line", game.paddlePadding, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		-- end
 	end
 
 	player = game.players[2]
 	if player then
 		love.graphics.print(player.score, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
-		love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, net.playerTwoPos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		if game.myID == 2 then
-			love.graphics.rectangle("line", width-game.paddlePadding-game.paddleDepth, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
-		end
+		love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, game.getAvg(net.playerTwoPos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		-- if game.myID == 2 then
+		-- 	love.graphics.rectangle("line", width-game.paddlePadding-game.paddleDepth, player.pos-game.paddleLength/2, game.paddleDepth, game.paddleLength)
+		-- end
 	end
 
 	if game.ball then
@@ -89,6 +89,8 @@ function game.draw()
 	end
 	love.graphics.setLineWidth(lineWidth)
 end
+
+function game.getAvg(a,b) return (a+b)/2 end
 
 function game.playSound()
 	if game.blipEffects[1]:isPlaying() then
