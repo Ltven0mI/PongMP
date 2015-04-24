@@ -105,15 +105,23 @@ function game.playSound()
 end
 
 function game.addPlayer()
-	if #game.players < 2 then
-		local width, height = love.graphics.getDimensions()
-		table.insert(game.players, {pos=width/2,score=0})
+	local width, height = love.graphics.getDimensions()
+	if not game.players[1] then
+		game.players[1] = {pos=width/2,score=0}
+		-- table.insert(game.players, 1, {pos=width/2,score=0})
+	elseif not game.players[2] then
+		game.players[2] = {pos=width/2,score=0}
+		-- table.insert(game.players, 2, {pos=width/2,score=0})
 	end
+	-- if #game.players < 2 then
+	-- 	local width, height = love.graphics.getDimensions()
+	-- 	table.insert(game.players, {pos=width/2,score=0})
+	-- end
 end
 
 function game.removePlayer(id)
 	if id > 0 and id < 3 then
-		table.remove(game.players, id)
+		game.players[id] = nil
 	end
 end
 

@@ -72,6 +72,10 @@ local function structConnectPacket()
 	return {job = "connect", nick = net.nick}
 end
 
+local function structDisconnectPacket()
+	return {job = "disconnect", nick = net.nick}
+end
+
 local function structKeepAlive()
 	return {job = "keepAlive", nick = net.nick}
 end
@@ -110,6 +114,8 @@ function net.update(dt)
 			print("People playing: "..data.playing)
 			if data.playing >= 1 then game.addPlayer() end
 			if data.playing >= 2 then game.addPlayer() end
+		elseif data.job == "connect" and data.status == "failed" then
+			core.loadState("menu")
 		elseif data.job == "update" then
 			if data.name == "ball" then
 				if game.ball then
@@ -135,6 +141,8 @@ function net.update(dt)
 		elseif data.job == "newGame" then
 			print("Game reset!")
 			game.startGame()
+		elseif data.job == "left" then
+			game.removePlayer(data.paddleId)
 		end
 	end
 
@@ -151,6 +159,21 @@ function net.update(dt)
 				end
 			end
 		end
+	end
+end
+
+function net.quit()
+	net.udp:send(serialize(structDisconnectPacket()))
+	local timeout = 0
+	while true do
+		local packet, msg = net.udp:receive()
+		if packet then
+			local data = deserialize(packet)
+			if data.job == "disconnect" and data.status == "done" then break end
+		end
+		love.timer.sleep(0.005)
+		timeout = timeout + 0.005
+		if timeout > 2 then break end
 	end
 end
 
