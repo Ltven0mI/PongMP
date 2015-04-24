@@ -8,7 +8,7 @@ game = require("game")
 net = {}
 net.udp = require("socket").udp()
 net.udp:settimeout(0)
-net.udp:setsockname('*', 63148)
+net.udp:setsockname('*', 27014)
 
 
 net.timeout = 15
