@@ -10,13 +10,11 @@ game.paddleLength = 100
 
 game.paddleSpeed = 700
 
-game.scorePadding = 50
+game.scorePadding = 25
 game.scoreFont = nil
 game.scoreScale = 5
 
-game.ball = nil
 game.ballSize = 10
-game.ballSpeed = 300
 
 game.blipEffects = {}
 game.lineWidth = 5
@@ -60,7 +58,7 @@ function game.draw()
 	local width, height = love.graphics.getDimensions()
 	local player = game.players[1]
 	if player then
-		love.graphics.print(net.playerOneScore, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2), math.floor(game.scorePadding), 0, game.scoreScale)
+		love.graphics.print(net.playerOneScore, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(net.playerOneScore)*game.scoreScale), math.floor(game.scorePadding), 0, game.scoreScale)
 		if game.myID == 1 then
 			love.graphics.rectangle("fill", game.paddlePadding, game.getAvg(net.playerOnePos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
 		else
@@ -70,7 +68,7 @@ function game.draw()
 
 	player = game.players[2]
 	if player then
-		love.graphics.print(net.playerTwoScore, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
+		love.graphics.print(net.playerTwoScore, math.floor(width/2+game.scorePadding), math.floor(game.scorePadding), 0, game.scoreScale)
 		if game.myID == 2 then
 			love.graphics.rectangle("fill", width-game.paddlePadding-game.paddleDepth, game.getAvg(net.playerTwoPos, player.pos)-game.paddleLength/2, game.paddleDepth, game.paddleLength)
 		else
@@ -108,15 +106,9 @@ function game.addPlayer()
 	local width, height = love.graphics.getDimensions()
 	if not game.players[1] then
 		game.players[1] = {pos=width/2,score=0}
-		-- table.insert(game.players, 1, {pos=width/2,score=0})
 	elseif not game.players[2] then
 		game.players[2] = {pos=width/2,score=0}
-		-- table.insert(game.players, 2, {pos=width/2,score=0})
 	end
-	-- if #game.players < 2 then
-	-- 	local width, height = love.graphics.getDimensions()
-	-- 	table.insert(game.players, {pos=width/2,score=0})
-	-- end
 end
 
 function game.removePlayer(id)
