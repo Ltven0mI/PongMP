@@ -30,7 +30,7 @@ function game.update(dt)
 			-- player.pos = player.pos + moveAmount*game.paddleSpeed*dt
 			if player.pos-game.paddleLength/2 < 0 then player.pos = game.paddleLength/2 end
 			if player.pos+game.paddleLength/2 > width then player.pos = width-game.paddleLength/2 end
-			net.setAll("player_"..i.."_pos", player.pos)
+			net.setAll("player_"..i.."_pos", math.floor(player.pos))
 		end
 	end
 
@@ -38,7 +38,7 @@ function game.update(dt)
 		game.ball.pos = game.ball.pos:add(game.ball.vel:mul(game.ballSpeed):mul(dt))
 
 		local bx, by = game.ball.pos:xy()
-		if bx+game.ballSize/2 < 0 or bx-game.ballSize/2 > width or by+game.ballSize/2 < 0 or by-game.ballSize/2 > height then game.endGame() end
+		local bounced = false
 
 		local player = net.players[game.players[1]]
 		if player then
@@ -47,14 +47,14 @@ function game.update(dt)
 				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
 				game.ball.vel.y = ratio
 				game.ball.pos.x = game.paddlePadding+game.paddleDepth+game.ballSize/2
-				net.playSound("beep")
+				bounced = true
 			end
 			if bx+game.ballSize/2 < 0 then game.endGame(1) end
 		else
 			if bx-game.ballSize/2 < 0 then
 				game.ball.vel.x = positive(game.ball.vel.x)
 				game.ball.pos.x = game.ballSize/2
-				net.playSound("beep")
+				bounced = true
 			end
 		end
 
@@ -65,27 +65,28 @@ function game.update(dt)
 				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
 				game.ball.vel.y = ratio
 				game.ball.pos.x = width-game.paddlePadding-game.paddleDepth-game.ballSize/2
-				net.playSound("beep")
+				bounced = true
 			end
 			if bx-game.ballSize/2 > width then game.endGame(2) end
 		else
 			if bx+game.ballSize/2 > width then
 				game.ball.vel.x = negative(game.ball.vel.x)
 				game.ball.pos.x = width-game.ballSize/2
-				net.playSound("beep")
+				bounced = true
 			end
 		end
 
 		if by-game.ballSize/2 < 0 then
 			game.ball.vel.y = positive(game.ball.vel.y)
-			net.playSound("beep")
+			bounced = true
 		end
 
 		if by+game.ballSize/2 > height then
 			game.ball.vel.y = negative(game.ball.vel.y)
-			net.playSound("beep")
+			bounced = true
 		end
-		net.setAll("ball", {game.ball.pos.x, game.ball.pos.y})
+		net.setAll("ball", {math.floor(game.ball.pos.x), math.floor(game.ball.pos.y)})
+		if bounced == true then net.playSound("beep") end
 	end
 end
 
@@ -98,14 +99,12 @@ function game.draw()
 
 	local player = net.players[game.players[1]]
 	if player then
-		--love.graphics.print(player.score, math.floor(width/2-game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2), math.floor(game.scorePadding), 0, game.scoreScale)
 		love.graphics.rectangle("fill", game.paddlePadding*scale, (player.pos-game.paddleLength/2)*scale, game.paddleDepth*scale, game.paddleLength*scale)
 	end
 
 	local player = net.players[game.players[2]]
 	if player then
-		--love.graphics.print(player.score, math.floor(width/2+game.scorePadding-game.scoreFont:getWidth(player.score)*game.scoreScale/2)+0.5, math.floor(game.scorePadding)+0.5, 0, game.scoreScale)
-		love.graphics.rectangle("fill", width-(game.paddlePadding-game.paddleDepth)*scale, (player.pos-game.paddleLength/2)*scale, game.paddleDepth*scale, game.paddleLength*scale)
+		love.graphics.rectangle("fill", width-(game.paddlePadding+game.paddleDepth)*scale, (player.pos-game.paddleLength/2)*scale, game.paddleDepth*scale, game.paddleLength*scale)
 	end
 end
 
@@ -141,17 +140,15 @@ end
 
 function game.startGame()
 	local width, height = 700, 700
-	net.newGame()
 	game.ball = {pos=vec2.new(width/2, height/2),vel=vec2.new((math.random(0, 1)-0.5)*2, (math.random(0, 1)-0.5)*2)}
-	-- if game.players[1] then game.players[1].pos = width/2 end
-	-- if game.players[2] then game.players[2].pos = width/2 end
+	net.newGame()
 end
 
 function game.endGame(playerID)
 	if playerID == 1 then
 		local player = net.players[game.players[2]]
 		if player then 
-			player.score = player.score + 1 
+			player.score = player.score + 1
 			net.setAll("player_2_score", player.score)
 		end
 	elseif playerID == 2 then
@@ -161,7 +158,6 @@ function game.endGame(playerID)
 			net.setAll("player_1_score", player.score)
 		end
 	end
-	-- love.event.quit()
 	if net.online > 0 then game.startGame() else game.ball = nil end
 end
 
