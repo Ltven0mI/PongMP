@@ -27,7 +27,6 @@ function game.update(dt)
 		local player = net.players[game.players[i]]
 
 		if player then
-			-- player.pos = player.pos + moveAmount*game.paddleSpeed*dt
 			if player.pos-game.paddleLength/2 < 0 then player.pos = game.paddleLength/2 end
 			if player.pos+game.paddleLength/2 > width then player.pos = width-game.paddleLength/2 end
 			net.setAll("player_"..i.."_pos", math.floor(player.pos))
@@ -38,7 +37,6 @@ function game.update(dt)
 		game.ball.pos = game.ball.pos:add(game.ball.vel:mul(game.ballSpeed):mul(dt))
 
 		local bx, by = game.ball.pos:xy()
-		local bounced = false
 
 		local player = net.players[game.players[1]]
 		if player then
@@ -47,14 +45,14 @@ function game.update(dt)
 				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
 				game.ball.vel.y = ratio
 				game.ball.pos.x = game.paddlePadding+game.paddleDepth+game.ballSize/2
-				bounced = true
+				net.playSound("beep")
 			end
 			if bx+game.ballSize/2 < 0 then game.endGame(1) end
 		else
 			if bx-game.ballSize/2 < 0 then
 				game.ball.vel.x = positive(game.ball.vel.x)
 				game.ball.pos.x = game.ballSize/2
-				bounced = true
+				net.playSound("beep")
 			end
 		end
 
@@ -65,28 +63,27 @@ function game.update(dt)
 				local ratio = (game.ball.pos.y-player.pos)/(game.paddleLength/4)
 				game.ball.vel.y = ratio
 				game.ball.pos.x = width-game.paddlePadding-game.paddleDepth-game.ballSize/2
-				bounced = true
+				net.playSound("beep")
 			end
 			if bx-game.ballSize/2 > width then game.endGame(2) end
 		else
 			if bx+game.ballSize/2 > width then
 				game.ball.vel.x = negative(game.ball.vel.x)
 				game.ball.pos.x = width-game.ballSize/2
-				bounced = true
+				net.playSound("beep")
 			end
 		end
 
 		if by-game.ballSize/2 < 0 then
 			game.ball.vel.y = positive(game.ball.vel.y)
-			bounced = true
+			net.playSound("beep")
 		end
 
 		if by+game.ballSize/2 > height then
 			game.ball.vel.y = negative(game.ball.vel.y)
-			bounced = true
+			net.playSound("beep")
 		end
 		net.setAll("ball", {math.floor(game.ball.pos.x), math.floor(game.ball.pos.y)})
-		if bounced == true then net.playSound("beep") end
 	end
 end
 
